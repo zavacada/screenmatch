@@ -3,6 +3,7 @@ package br.com.alura.screenmatch.Principal;
 import br.com.alura.screenmatch.model.DadosEpisodio;
 import br.com.alura.screenmatch.model.DadosSerie;
 import br.com.alura.screenmatch.model.DadosTemporada;
+import br.com.alura.screenmatch.model.Episodio;
 import br.com.alura.screenmatch.service.ConsumoApi;
 import br.com.alura.screenmatch.service.ConverteDados;
 
@@ -24,7 +25,7 @@ public class Principal {
     private final String ENDERECO = "https://omdbapi.com/?t=";
     private final String API_KEY = "&apikey=6585022c";
 
-    public void exibeMenu(){
+    public void exibeMenu() {
         System.out.println("Digite o nome da série para busca: ");
         var nomeSerie = leitura.nextLine();
         String nomeFormatado = URLEncoder.encode(nomeSerie, StandardCharsets.UTF_8);
@@ -35,7 +36,7 @@ public class Principal {
 
         List<DadosTemporada> temporadas = new ArrayList<>();
 
-        for(int i = 1; i <= dados.totalTemporadas(); i++) {
+        for (int i = 1; i <= dados.totalTemporadas(); i++) {
             json = consumo.obterDados(ENDERECO + nomeFormatado + "&season=" + i + API_KEY);
             DadosTemporada dadosTemporada = conversor.obterDados(json, DadosTemporada.class);
             temporadas.add(dadosTemporada);
@@ -55,6 +56,14 @@ public class Principal {
                 .limit(5)
                 .forEach(System.out::println);
 
+        List<Episodio> episodios = temporadas.stream()
+                .flatMap(t -> t.episodios().stream()
+                        .map(d -> new Episodio(t.numero(), d))
+                ).collect(Collectors.toList());
+
+        episodios.forEach(System.out::println);
+
 
     }
 }
+
