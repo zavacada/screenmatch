@@ -29,7 +29,7 @@ public class Principal {
 
     public void exibeMenu() {
         var opcao = -1;
-        while (opcao!=0) {
+        while (opcao != 0) {
             var menu = """
                     1 - Buscar séries
                     2 - Buscar episódios
@@ -63,7 +63,7 @@ public class Principal {
 
     private void buscarSerieWeb() {
         DadosSerie dados = getDadosSerie();
-        Serie serie = new Serie (dados);
+        Serie serie = new Serie(dados);
         //dadosSeries.add(dados);
         repositorio.save(serie);
         System.out.println(dados);
@@ -77,7 +77,7 @@ public class Principal {
         return dados;
     }
 
-    private void buscarEpisodioPorSerie(){
+    private void buscarEpisodioPorSerie() {
         listarSeriesBuscadas();
         System.out.println("Escolha uma série pelo nome");
         var nomeSerie = leitura.nextLine();
@@ -96,7 +96,23 @@ public class Principal {
                 DadosTemporada dadosTemporada = conversor.obterDados(json, DadosTemporada.class);
                 temporadas.add(dadosTemporada);
             }
-            temporadas.forEach(System.out::println);
+            for (DadosTemporada t : temporadas) {
+                System.out.println("\n=== Lista de episódios da temporada " + t.numero() + " ===");
+                for (var e : t.episodios()) {
+                    System.out.printf("""
+                Episódio %d
+                Título: %s
+                Avaliação: %s
+                Lançamento: %s
+                -----------------------------
+                """,
+                            e.numero(),
+                            e.titulo(),
+                            e.avaliacao(),
+                            e.dataLancamento());
+                }
+            }
+
 
             List<Episodio> episodios = temporadas.stream()
                     .flatMap(d -> d.episodios().stream()
@@ -110,7 +126,8 @@ public class Principal {
         }
 
     }
-    private void listarSeriesBuscadas(){
+
+    private void listarSeriesBuscadas() {
         series = repositorio.findAll();
         series.stream()
                 .sorted(Comparator.comparing(Serie::getGenero))
